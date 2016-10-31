@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+    <head>
+        <title>COL Map</title>
+		
+        <!--Allow "Add to homescreen" on mobile browsers-->
+        <meta name="mobile-web-app-capable" content="yes">
+
+        <!--Keep mobile browsers at correct zoom-->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+		
+		<!--Our css-->
+		<link rel="stylesheet" href="css/app.css"/>
+		
+        <!--jQuery-->
+         <script src="scripts/jquery1.11.2.min.js"></script>
+
+        <!--Bootstrap-->       
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+        <script src="scripts/bootstrap3.3.7.min.js"></script>
+
+        <!--AngularJS -->
+        <script src="scripts/angular1.5.2.min.js"></script>
+        
+		<!--Google Maps-->
+		<script type="text/javascript" src="http://maps.google.com/maps/api/js?key=AIzaSyDARduaVDhGG5z3_D54raucZWFABj2PFvE"></script> 
+        
+		<!--ArcGISLink.js-->
+		<script src="scripts/arcgislink.js"></script>
+		
+        <!--Our js-->
+        <script src="scripts/app.js"></script>
+
+
+    </head>
+
+    <body ng-app="app" ng-controller="ctrl_map as vm">	
+	
+		<!--....................................................................-->
+		<!-- Navbar -->
+		<nav id="navbar-site" class="navbar navbar-default navbar-fixed-top">
+
+			<div class="container-fluid">
+
+				<!--Navbar Header-->
+				<div class="navbar-header">            
+
+					<!--Mobile-Menu Button-->
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#nav_mobile" aria-expanded="false"
+						ng-click="_mobileNavClicked=true"
+					>
+						<span class="sr-only">Toggle navigation</span><span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
+					</button>
+
+					<!--Site Title - sm to lg-->
+					<a class="nav-site-title-container navbar-brand" href="#/home"> 
+						<img class="hidden-xs nav-city-logo" src="images/citylogo.svg">
+						<h1 class=" hidden-xs nav-site-title">City of Lewisville <small>GIS</small></h1>
+					</a>
+					
+					<!--Site Title - xs-->
+					<img class="visible-xs hidden-sm nav-city-logo-xs" src="images/citylogo.svg">
+					<span class="visible-xs hidden-sm nav-site-title-xs">City of Lewisville <small>GIS</small></span>
+				   
+				</div> <!--/.navbar-header-->
+				
+				
+				
+				<!--Mobile Nav-Menu-->
+				<div id="nav_mobile" class="collapse navbar-collapse" ng-class="{'nav_mobile': _mobileNavClicked == true}">
+				
+					<!--Search-->
+					<div class="navbar-form navbar-right" role="search" ng-controller="ctrl_search as vm">
+					  <div class="form-group">
+						<input type="text" class="form-control" placeholder="Search" ng-model="_search_value">
+					  </div>
+					  <button type="submit" class="btn btn-default" ng-click="vm.geocode(_search_value)">Submit</button>
+					</div>
+					
+					<layer-list 
+						ng-if="_mobileNavClicked == true"
+						getlayersonload="false" 
+						legendbuttons="true">
+					</layer-list>
+				</div> <!-- /Mobile Nav-menu + .navbar-collapse -->
+				
+			</div> <!-- /.container-fluid -->
+		</nav>
+		
+	
+		<div id="main-container" class="row" >
+		
+			<!--....................................................................-->
+			<!--COLUMN: Map-->
+			<div class="col-md-10 container-map">
+				<div id="map"></div>
+			</div>
+			
+			
+			<!--....................................................................-->
+			<!--COLUMN: Legend-->
+			<div id="panel_legend" class="col-md-2 hidden">
+			
+				<layer-legend></layer-legend>
+				
+			</div>
+			
+			<!--....................................................................-->
+			<!--COLUMN: Layer List-->
+			<div id="panel_layers" class="col-md-2 container-layer-buttons">
+				<!--
+				<h4 class="container-layer-buttons-title" style="padding-bottom: 0px; padding-top: 0px;">Layers</h4>
+				<hr style="margin:0px">
+				
+				
+				<div class="btn-group-vertical google-layer-buttons-group" role="group" ng-controller="ctrl_map as vm">
+					<button
+						ng-repeat="lyr in vm.googleLayers"
+						class="btn layer-button google-layer-button"
+						ng-class="{'btn-primary': lyr.active == true, 'btn-default': lyr.active == false}"
+						ng-click="lyr.toggle()"
+					>{{lyr.label}} &nbsp &nbsp <span class="glyphicon" ng-class="'glyphicon-' + lyr.icon" aria-hidden="true"></span>
+					</button>
+				</div>
+					
+				<br><br>
+				-->
+				<layer-list 
+					getlayersonload="true" 
+					legendbuttons="true">
+				</layer-list>
+			</div>
+		</div>				
+    </body>
+</html>

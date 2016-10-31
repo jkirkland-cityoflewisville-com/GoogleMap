@@ -1,0 +1,272 @@
+html,body{
+	margin:0; 
+	padding:0;
+	font-family: Tahoma !important;
+}
+.bold {
+	font-weight: bold;
+}
+/*...............................................................*/    	
+/*Bootstrap overrides*/
+	.btn-primary{
+		background-color: #e4e2f3 !important;
+		color: black !important;
+		/*background: linear-gradient(135deg, #5e2590 0%,#5e2590 50%,#7831b7 74%,#7831b7 100%) !important;*/
+	}
+	.panel-group .panel+.panel {
+		margin-top: 1px !important;
+	}
+
+/*...............................................................*/    	
+/*Navbar*/
+	#navbar-site.navbar { 
+		border-radius: 0px !important; 		 
+		margin-bottom: 0px !important;
+		background-color: #5E2590 !important;		
+		background: linear-gradient(135deg, #5e2590 0%,#5e2590 50%,#7831b7 74%,#7831b7 100%);
+		color: white !important;
+		height: 50px;
+		margin-left: -15px !important;
+		margin-right: -15px !important;
+	}
+	#navbar-site.navbar-default{
+		border-color:#5E2590 !important;
+	}
+	#navbar-site .navbar-brand > .nav-site-title {
+		color: white !important;
+		text-shadow: 1px 1px black !important;
+		margin-top: -2px !important;
+		font-family: Tahoma;
+		font-size: 1.3em;
+	}
+	#navbar-site .navbar-brand > img, .navbar-brand > h1 {
+		float:left;
+	}
+	#navbar-site .nav-city-logo{
+		height: 52px;
+		margin-top: -15px;
+		margin-left: 0px;
+	}
+	#navbar-site .nav-city-logo-xs{
+		position: absolute;
+		height: 45px !important;
+		top: 0;
+		left: 0;        
+	}
+	#navbar-site .nav-site-title-xs{
+		color: white !important;
+		text-shadow: 1px 1px black !important; 
+		font-size: 1.3em;       
+		position: absolute;
+		top: 0;
+		left: 0;
+		padding-left: 7px;
+		padding-top: 2px;
+	}
+	#navbar-site .nav-site-title > small{
+		color: yellow !important;
+	}
+	#navbar-site .navbar-toggle{
+		z-index: 1;
+	}
+	#navbar-site .navbar-right{
+		margin-right: 0 !important;
+	}
+	.nav_mobile{
+		background-color:black;
+		height: 100vh !important;
+	}
+
+/*...............................................................*/    	
+/*Main container*/	
+	#main-container.row{
+		margin-left: 0px !important;
+		margin-right: 0px !important;
+	}
+/*...............................................................*/    	
+/*Map container*/	
+	#map{
+		top: 51px;
+		height: calc(100vh - 55px);
+	}
+/*...............................................................*/    	
+/*Legend container*/
+	
+	#panel_legend{
+		top: 51px;
+		height: calc(100vh - 55px);
+		background-color: whitesmoke; 
+		border-left: solid 3px gray;
+		overflow: scroll;
+	}
+	
+	#panel_legend .navbar-default {
+		border: none !important;
+	}
+/*...............................................................*/    	
+/*Layer button container*/
+	.container-layer-buttons{
+		top: 51px;
+		height: calc(100vh - 55px);
+		background-color: #555555; 
+		border-left: solid 3px gray;
+		overflow-y: hidden;
+		overflow-x: hidden;
+		padding-left: 5px !important;
+	}
+	.container-layer-buttons-title{
+		padding-left:1em;
+		color: white;
+	}
+	.layer-button{
+		width: 100% !important; 
+		max-width: 150px !important;
+		margin-bottom: 2px !important;
+		margin:0 auto;
+	}
+	.layer-button-with-legend{
+		width: calc(100% - 55px) !important;
+	}
+	.layer-button-legend{		
+		width: 50px !important;
+	}
+	.layer-button-autorefresh-symbol{
+		color: #c1a6da;
+	}
+	.container-map,.container-layer-buttons{
+		padding: 0 !important;
+	}
+	.container-layer-buttons-group {
+		width: 100% !important;
+	}
+	.google-layer-buttons-group{
+		width: 100% !important;
+		padding-left: 15px;
+		padding-right: 15px;
+	}
+	#accordion{
+		padding-left: 0 !important;
+		padding-right: 0 !important;
+	}
+	.accordion-layer-label{
+		font-size: 1.1em;
+	}
+	.accordion-toggle{
+		text-decoration: none !important;
+	}
+	.panel-heading{
+		cursor: pointer;
+		background-color: black !important;
+		/*
+		background-color: #5E2590 !important;		
+		background: linear-gradient(135deg, #5e2590 0%,#5e2590 50%,#7831b7 74%,#7831b7 100%);		
+		*/
+		color: white !important;
+	}
+	.panel-default {
+		border-color: black !important;
+	}
+	/*
+	.panel-body{
+		background-color: gainsboro;
+	}
+	*/
+	
+	
+/*...........................................................*/
+/*Spin glyphicons  http://bootsnipp.com/snippets/featured/glyphicon-animate-rotation-and-flip*/
+	.gly-spin {
+	  -webkit-animation: spin 2s infinite linear;
+	  -moz-animation: spin 2s infinite linear;
+	  -o-animation: spin 2s infinite linear;
+	  animation: spin 2s infinite linear;
+	}
+	@-moz-keyframes spin {
+	  0% {
+		-moz-transform: rotate(0deg);
+	  }
+	  100% {
+		-moz-transform: rotate(359deg);
+	  }
+	}
+	@-webkit-keyframes spin {
+	  0% {
+		-webkit-transform: rotate(0deg);
+	  }
+	  100% {
+		-webkit-transform: rotate(359deg);
+	  }
+	}
+	@-o-keyframes spin {
+	  0% {
+		-o-transform: rotate(0deg);
+	  }
+	  100% {
+		-o-transform: rotate(359deg);
+	  }
+	}
+	@keyframes spin {
+	  0% {
+		-webkit-transform: rotate(0deg);
+		transform: rotate(0deg);
+	  }
+	  100% {
+		-webkit-transform: rotate(359deg);
+		transform: rotate(359deg);
+	  }
+	}
+	.gly-rotate-90 {
+	  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=1);
+	  -webkit-transform: rotate(90deg);
+	  -moz-transform: rotate(90deg);
+	  -ms-transform: rotate(90deg);
+	  -o-transform: rotate(90deg);
+	  transform: rotate(90deg);
+	}
+	.gly-rotate-180 {
+	  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2);
+	  -webkit-transform: rotate(180deg);
+	  -moz-transform: rotate(180deg);
+	  -ms-transform: rotate(180deg);
+	  -o-transform: rotate(180deg);
+	  transform: rotate(180deg);
+	}
+	.gly-rotate-270 {
+	  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+	  -webkit-transform: rotate(270deg);
+	  -moz-transform: rotate(270deg);
+	  -ms-transform: rotate(270deg);
+	  -o-transform: rotate(270deg);
+	  transform: rotate(270deg);
+	}
+	.gly-flip-horizontal {
+	  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=0, mirror=1);
+	  -webkit-transform: scale(-1, 1);
+	  -moz-transform: scale(-1, 1);
+	  -ms-transform: scale(-1, 1);
+	  -o-transform: scale(-1, 1);
+	  transform: scale(-1, 1);
+	}
+	.gly-flip-vertical {
+	  filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=2, mirror=1);
+	  -webkit-transform: scale(1, -1);
+	  -moz-transform: scale(1, -1);
+	  -ms-transform: scale(1, -1);
+	  -o-transform: scale(1, -1);
+	  transform: scale(1, -1);
+	}
+	
+/*Map tiles*/
+@keyframes bounceIn {
+  0% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(2);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
