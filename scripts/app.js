@@ -4,7 +4,7 @@ var app = angular.module('app',[]);
 //SERVICE - Map
 	app.service("svc_map",function(){
 		var svc = this;
-		
+
 		//Map Object
 			svc.map = new google.maps.Map(document.getElementById("map"), {
 				zoom: 13,
@@ -286,7 +286,7 @@ var app = angular.module('app',[]);
 				var _activeLayers = svc_layers.layers.filter(function(e){
 					var _active = e.active || false;
 					var _hide = e.infowindowhide || 'false';
-					return _active == true && _hide != true && _hide.toLowerCase() != "true";
+					return _active == true && _hide != true && _hide.toLowerCase() != "true" && e.filetype.toLowerCase()=="mapservice";
 				});	
 				
 				
@@ -299,83 +299,80 @@ var app = angular.module('app',[]);
 				_activeLayers.forEach(function(_lyr){					
 					
 					//ArcGISLink.js identity() function calls ArcGIS MapServer/identify function
-					_lyr.mapService.identify(
-						{
-							'geometry': _evt.latLng,
-							'tolerance': 3,
-							'layerOption': 'all',
-							'bounds': svc_map.map.getBounds(),
-							'width': svc_map.map.getDiv().offsetWidth,
-							'height': svc_map.map.getDiv().offsetHeight,
-							'overlayOptions': overlayOptions
-						}, 
-						function(_queryResults, err) {
-							if (err) {
-								alert(err.message + err.details.join('\n'));
-							} else {
-								
-								if (_queryResults.results){
-									console.log("infowindow queryresults");
-									console.log(_queryResults)
+						_lyr.mapService.identify(
+							{
+								'geometry': _evt.latLng,
+								'tolerance': 3,
+								'layerOption': 'all',
+								'bounds': svc_map.map.getBounds(),
+								'width': svc_map.map.getDiv().offsetWidth,
+								'height': svc_map.map.getDiv().offsetHeight,
+								'overlayOptions': overlayOptions
+							}, 
+							function(_queryResults, err) {
+								if (err) {
+									alert(err.message + err.details.join('\n'));
+								} else {
 									
-									var _name = _queryResults.results[0].layerName || '';
-									var _attributes = _queryResults.results[0].feature.attributes;
-									var _geometry = _queryResults.results[0].feature.geometry;
-																		
-									//Html					
-										var _html = '';
-										for (var attr in _attributes){											
-											var _value = _attributes[attr];
-											
-											//Only show columns list in the layer-settings
-											if (_lyr.infowindowcolumns.indexOf(attr.toLowerCase().replace(/ /g,'_')) >= 0 ){
+									if (_queryResults.results){
+										console.log("infowindow queryresults");
+										console.log(_queryResults)
+										
+										var _name = _queryResults.results[0].layerName || '';
+										var _attributes = _queryResults.results[0].feature.attributes;
+										var _geometry = _queryResults.results[0].feature.geometry;
+																			
+										//Html					
+											var _html = '';
+											for (var attr in _attributes){											
+												var _value = _attributes[attr];
 												
-												//Wrap urls in anchor tag
-													if ( _value.substr(0,4) == 'http'){
-														_value = '<a href="' + _value + '">Link</a>';
-													}							
-												//Table rows
-													_html += '<tr><td><b style="text-decoration: underline;">' + attr  + '</b></td></tr>';
-													_html += '<tr><td>' + _value + '</td></tr>';
-													_html += '<tr><td><br></td></tr>';
-											}
-										}
-										_infowindow_detail += '<h4>' + _name + '</h4><table>' + _html + '</table><br>';
-										
-									//Callback
-										_loopcount += 1;
-										
-										if (_loopcount == _activeLayers.length){
-											 
-											//Add html to infowindow
-												infowindow.addContent(_infowindow_detail);
-										
-											//Create hidden infowindow-marker
-												var _marker = new google.maps.Marker({	
-													position: _evt.latLng,
-													map: svc_map.map,
-													opacity: 0
-												})
-											
-											//Open infowindow	
-												infowindow.create({
-													map: svc_map.map, 
-													marker: _marker
-												});
-												
-
-											//Highlight feature
-												if (_activeLayers.length == 1){
-													showFeature(_geometry);
+												//Only show columns listed in the layer-settings
+												if (_lyr.infowindowcolumns.indexOf(attr.toLowerCase().replace(/ /g,'_')) >= 0 ){
+													
+													//Wrap urls in anchor tag
+														if ( _value.substr(0,4) == 'http'){
+															_value = '<a href="' + _value + '">Link</a>';
+														}							
+													//Table rows
+														_html += '<tr><td><b style="text-decoration: underline;">' + attr  + '</b></td></tr>';
+														_html += '<tr><td>' + _value + '</td></tr>';
+														_html += '<tr><td><br></td></tr>';
 												}
-										} //end if
-								} //end if
-							} //end if
-						}
-					); //end identify	
+											}
+											_infowindow_detail += '<h4>' + _name + '</h4><table>' + _html + '</table><br>';
+											
+										//Callback
+											_loopcount += 1;
+											console.log("_loopcount="+_loopcount + " ; _activeLayers.length="+_activeLayers.length)
+											if (_loopcount == _activeLayers.length){
+												
+												//Add html to infowindow
+													infowindow.addContent(_infowindow_detail);
+											
+												//Create hidden infowindow-marker
+													var _marker = new google.maps.Marker({	
+														position: _evt.latLng,
+														map: svc_map.map,
+														opacity: 0
+													})
+												
+												//Open infowindow	
+													infowindow.create({
+														map: svc_map.map, 
+														marker: _marker
+													});
+													
 
-					
-					
+												//Highlight feature
+													if (_activeLayers.length == 1){
+														showFeature(_geometry);
+													}
+											} //end if
+									} //end if
+								} //end if
+							}
+						); //end identify					
 				}); //end activeLayers.forEach
 				
 			};
