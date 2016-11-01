@@ -76,7 +76,9 @@ var app = angular.module('app',[]);
 						
 						//Add _layer.name to svc.toggleOrder
 							svc.toggleOrder.push(_layer.id);
-							
+
+						//...........................................................................................	
+						//Map Services
 						if ( _layer.filetype.toLowerCase() == "mapservice"){
 							
 							//Create a Google Map/Esri Map-Service Type (using arcgislink.js library). 
@@ -115,6 +117,21 @@ var app = angular.module('app',[]);
 							
 							//console.log(_layer)
 						}
+
+						//...........................................................................................	
+						//Tile Caches
+						if ( _layer.filetype.toLowerCase() == "tilecache"){
+							svc_map.map.mapTypes.set(_layer.id, new google.maps.ImageMapType({
+								getTileUrl : function(coord, zoom){ 
+									return _layer.url + zoom+'/'+coord.y+'/'+coord.x + "?" + (new Date()).getTime(); 
+								},
+								tileSize: new google.maps.Size(256, 256),
+								name: "Topo (ESRI)",
+								maxZoom: 18
+							}));
+							svc_map.map.setMapTypeId(_layer.id);
+							_layer.isloading = false;
+						}
 					
 					//Layer is already active. Turn it off
 					}else{
@@ -125,6 +142,9 @@ var app = angular.module('app',[]);
 						//Remove the layer from the map
 							if ( _layer.filetype.toLowerCase() == "mapservice"){								
 								_layer.mapoverlay.setMap(null);
+							}
+							if ( _layer.filetype.toLowerCase() == "tilecache"){		
+								svc_map.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
 							}
 							
 						//Cancel any $intervals
