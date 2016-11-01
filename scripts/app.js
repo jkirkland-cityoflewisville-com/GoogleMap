@@ -121,14 +121,37 @@ var app = angular.module('app',[]);
 						//...........................................................................................	
 						//Tile Caches
 						if ( _layer.filetype.toLowerCase() == "tilecache"){
-							svc_map.map.mapTypes.set(_layer.id, new google.maps.ImageMapType({
-								getTileUrl : function(coord, zoom){ 
-									return _layer.url + zoom+'/'+coord.y+'/'+coord.x + "?" + (new Date()).getTime(); 
-								},
-								tileSize: new google.maps.Size(256, 256),
-								name: "Topo (ESRI)",
-								maxZoom: 18
-							}));
+							var _url = _layer.url + (_layer.url.substr(_layer.url.length - 1) == '/' ? '' : '/');
+
+							//Is ArcGIS Online Layer
+							if ( _layer.url.toLowerCase().indexOf("/mapserver/tile")>0 ){							
+								svc_map.map.mapTypes.set(_layer.id, new google.maps.ImageMapType({
+									getTileUrl : function(coord, zoom){ 
+										return _url + zoom+'/'+coord.y+'/'+coord.x + "?" + (new Date()).getTime(); 
+									},
+									tileSize: new google.maps.Size(256, 256),
+									name: "Topo (ESRI)",
+									maxZoom: 19
+								}));
+							
+							//Lewisville Cached Tiles
+							}else{
+								if (_url.indexOf("/layers/_alllayers") == -1 ){
+									_url = _url + "layers/_alllayers/";
+								}
+								svc_map.map.mapTypes.set(_layer.id, new google.maps.ImageMapType({
+									getTileUrl : function(coord, zoom){ 
+										var z = svc_utilities.pad(zoom,2);
+										var x = svc_utilities.pad(coord.x.toString(16),8);
+										var y = svc_utilities.pad(coord.y.toString(16),8);
+																
+										return _url + 'L'+z+'/R'+y+'/C'+x+'.png';
+									},
+									tileSize: new google.maps.Size(256, 256),
+									name: _layer.id,
+									maxZoom: 19
+								}));
+							}
 							svc_map.map.setMapTypeId(_layer.id);
 							_layer.isloading = false;
 						}
@@ -403,6 +426,15 @@ var app = angular.module('app',[]);
 			svc.JsonPropsToLower = function(_json){
 				return JSON.parse(JSON.stringify(_json).replace(/"([^"]+)":/g, function ($0, $1) {return ('"' + $1.toLowerCase() + '":');}));
 			};	
+		//Padded
+			svc.pad = function(number, length) {   
+				var str = '' + number;
+				while (str.length < length) {
+					str = '0' + str;
+				}	   
+				return str;
+			}
+
 		return svc;
 	});
 	
