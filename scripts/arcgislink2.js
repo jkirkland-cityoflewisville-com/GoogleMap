@@ -238,7 +238,6 @@ function formatTimeString_(time, endTime) {
  * @param {Number} 0-1
  */
 function setNodeOpacity_(node, op) {
-	
   // closure compiler removed?
   op = Math.min(Math.max(op, 0), 1);
   if (node) {
@@ -797,7 +796,6 @@ function getJSON_(url, params, callbackName, callbackFn) {
      * @param {String} scriptID
      * @event
      */
-	//console.log("jsonp end " + new Date()) 
     triggerEvent_(Util, 'jsonpend', sid);
   };
   window['ags_jsonp'][sid] = jsonpcallback;
@@ -841,7 +839,6 @@ function getJSON_(url, params, callbackName, callbackFn) {
    * @param {String} scriptID
    * @event
    */
-   //console.log("jsonp start" + new Date()) 
   triggerEvent_(Util, 'jsonpstart', sid);
   return sid;
 }
@@ -2226,7 +2223,7 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
     }
     if (vlayers.length > 0) {
       params.layers =  layerOpt + ':' + vlayers.join(',');
-    } else {		
+    } else {
       // no layers visible, no need to go to server, note if vlayers is null means not init yet in which case do not send layers 
       if (this.loaded_ && callback) {
         callback({
@@ -3477,19 +3474,9 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
     
     this.minZoom  = opt_overlayOpts.minZoom;
     this.maxZoom  = opt_overlayOpts.maxZoom;
+    this.__ZINDEX = opt_overlayOpts.__ZINDEX || 0;
     this.opacity_ = opt_overlayOpts.opacity || 1;
-	
-	//-------------------------------------------------------------
-	//ADDED BY JKIRKLAND on 10/19/2016 to handle layer ordering
-		this.__ZINDEX = opt_overlayOpts.__ZINDEX || 0;
-    //-------------------------------------------------------------
-	//-------------------------------------------------------------
-	//ADDED BY JKIRKLAND on 10/19/2016 to handle events to do on draw
-		this.__doOnDrawStart = opt_overlayOpts.__doOnDrawStart || null;
-		this.__doOnDrawEnd = opt_overlayOpts.__doOnDrawEnd || null;
-    //-------------------------------------------------------------
-	
-	this.exportOptions_ = opt_overlayOpts.exportOptions || {};
+    this.exportOptions_ = opt_overlayOpts.exportOptions || {};
     this.drawing_ = false;
     // do we need another refresh. Normally happens bounds changed before server returns image.
     this.needsNewRefresh_ = false;
@@ -3512,10 +3499,7 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
    */
   MapOverlay.prototype.onAdd = function() {
     var me = this;
-    this.listeners_.push(G.event.addListener(this.getMap(), 'bounds_changed', function(){
-      console.log("bounds_change")
-      callback_(this.refresh, this)
-    }));
+    this.listeners_.push(G.event.addListener(this.getMap(), 'bounds_changed', callback_(this.refresh, this)));
     this.listeners_.push(G.event.addListener(this.getMap(), 'dragstart', function(){
       me.dragging = true; 
     }));
@@ -3534,7 +3518,6 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
    * Handler when overlay is removed.
    */
   MapOverlay.prototype.onRemove = function() {
-    console.log("MapOverlay.onRemove()")
     for (var i = 0, j = this.listeners_.length; i < j; i++){
       G.event.removeListener(this.listeners_[i]);
     }
@@ -3595,8 +3578,7 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
   /**
    * Refresh the map image in current view port.
    */
-  MapOverlay.prototype.refresh = function () {	 
-    console.log("MapOverlay.refresh()") 
+  MapOverlay.prototype.refresh = function () {
     if (this.drawing_ === true) {
       this.needsNewRefresh_ = true;
       return;
@@ -3621,34 +3603,20 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
       sr = prj.spatialReference_;
     }
     params.imageSR = sr;
-	
     /**
      * This event is fired before the the drawing request was sent to server.
      * @name MapOverlay#drawstart
      * @event
      */
     triggerEvent_(this, 'drawstart');
-	
-	  //----------------------------------------------------------------------
-	  //ADDED BY JKIRKLAND on 10/19/2016 to handle events to do on drawend
-	  if (this.__doOnDrawStart){
-		  this.__doOnDrawStart();
-	  }
-	
-	  //-----------------------------------------------------------------------
-	  //Clear overlay when dragging is done
-		var me = this;
-		
-		this.drawing_ = true;
-		
-		if (!this.dragging && this.overlay_){
-		  //Do on Zoom
-		  console.log("setMap(null) & overlay=null")
-		  this.overlay_.setMap(null);		  
-		  this.overlay_ = null;
-		  
-		}
-	
+    var me = this;
+    this.drawing_ = true;
+    if (!this.dragging && this.overlay_){
+      this.overlay_.setMap(null);
+      this.overlay_ = null;
+    }
+    //this.div_.style.backgroundImage = '';
+    
     this.mapService_.exportMap(params, function (json) {
       me.drawing_ = false;
       
@@ -3658,28 +3626,23 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
         return;
       }
       if (json.href) {
-		    me.overlay_ = new ImageOverlay(json.bounds, json.href, me.map_, me.opacity_, me.__ZINDEX);       //me.__ZINDEX ADDED BY JKIRKLAND on 10/19/2016 to handle events to do on drawend	   
+        if (me.overlay_) {
+          me.overlay_.setMap(null);
+          me.overlay_ = null;
+        }
+       me.overlay_ = new ImageOverlay(json.bounds, json.href, me.map_, me.opacity_,me.__ZINDEX);
+       
       }
-
-
       /**
        * This event is fired after the the drawing request was returned by server.
        * @name MapOverlay#drawend
        * @event
        */
-	  	  
       triggerEvent_(me, 'drawend');
-	  
-	    //----------------------------------------------------------------------
-	    //ADDED BY JKIRKLAND on 10/19/2016 to handle events to do on drawend
-	    if (me.__doOnDrawEnd){
-		    me.__doOnDrawEnd();
-	    }	  
     });
   };
   
-  
-  
+
   /**
    * Check if the overlay is visible, and within zoomzoom range and current map bounds intersects with it's fullbounds.
    * @return {Boolean} visible
@@ -3732,7 +3695,7 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
     this.map_ = map;
     this.div_ = null;
     this.op_ = op;
-	this.__ZINDEX = __ZINDEX;
+    this.__ZINDEX = __ZINDEX;
     this.setMap(map);
   }
   
@@ -3745,14 +3708,10 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
     var s = this.map_.getDiv();
     div.style.width = s.offsetWidth + 'px';
     div.style.height =  s.offsetHeight + 'px';
-    //div.style.animation = "bounceIn 0.5s"
+    div.style.zIndex = this.__ZINDEX;
+    
     div.style.backgroundImage = 'url(' + this.url_ + ')';
-		
-	//-------------------------------------------------------------
-	//ADDED BY JKIRKLAND
-		div.style.zIndex = this.__ZINDEX;
-	//-------------------------------------------------------------
-	
+    
     // Set the overlay's div_ property to this DIV
     this.div_ = div;
     
@@ -3760,7 +3719,7 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
     // We'll add this overlay to the overlayImage pane.
     var panes = this.getPanes();
     setNodeOpacity_(div, this.op_);
-    panes.overlayLayer.appendChild(div);	
+    panes.overlayLayer.appendChild(div);
   };
   ImageOverlay.prototype.draw = function() {
   
@@ -3779,13 +3738,12 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
     var div = this.div_;
     div.style.left = sw.x + 'px';
     div.style.top = ne.y + 'px';
-	
+    //div.style.width = (ne.x - sw.x) + 'px';
+    //div.style.height = (sw.y - ne.y) + 'px';
   };
-  
   ImageOverlay.prototype.onRemove = function() {
-    console.log("ImageOverlay.onRemove()")
-	  this.div_.parentNode.removeChild(this.div_);
-	  this.div_ = null;	  
+    this.div_.parentNode.removeChild(this.div_);
+    this.div_ = null;
   }
   /**
  * Creates a copyright control
@@ -3832,24 +3790,5 @@ Layer.prototype.queryRelatedRecords = function(qparams, callback, errback) {
     MapType: MapType,
     CopyrightControl:CopyrightControl
   };
-  
-function toDataUrl(src, callback, outputFormat) {
-  var img = new Image();
-  img.crossOrigin = 'Anonymous';
-  img.onload = function() {
-    var canvas = document.createElement('CANVAS');
-    var ctx = canvas.getContext('2d');
-    var dataURL;
-    canvas.height = this.height;
-    canvas.width = this.width;
-    ctx.drawImage(this, 0, 0);
-    dataURL = canvas.toDataURL(outputFormat);
-    callback(dataURL);
-  };
-  img.src = src;
-  if (img.complete || img.complete === undefined) {
-    img.src = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==";
-    img.src = src;
-  }
-}
+
 window.gmaps = gmaps; })()  
