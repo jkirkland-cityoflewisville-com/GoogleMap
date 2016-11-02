@@ -59,8 +59,7 @@ var app = angular.module('app',[]);
 				//Convert infowindow column names to lowercase
 				if (e.infowindowcolumns){
 					if (e.infowindowcolumns.split(",").length > 1){
-						e.infowindowcolumns = e.infowindowcolumns.split(",").map(function(e){return e.toLowerCase()});
-						
+						e.infowindowcolumns = e.infowindowcolumns.split(",").map(function(e){return e.toLowerCase()});						
 					}
 				}
 				
@@ -80,7 +79,6 @@ var app = angular.module('app',[]);
 						//...........................................................................................	
 						//Map Services
 						if ( _layer.filetype.toLowerCase() == "mapservice"){
-							
 							//Create a Google Map/Esri Map-Service Type (using arcgislink.js library). 
 								_layer.mapService = new gmaps.ags.MapService(_layer.url);
 								
@@ -88,17 +86,13 @@ var app = angular.module('app',[]);
 								_layer.mapoverlay = new gmaps.ags.MapOverlay(_layer.mapService, {
 									opacity: _layer.opacity,
 									
-									__ZINDEX: (1000 + svc.toggleOrder.indexOf(_layer.id)),        // <---Custom property added to arcgislink.js module by JKIRKLAND 10/2016
-									
-									__doOnDrawStart: function(){                                  // <---Custom property added to arcgislink.js module by JKIRKLAND 10/2016
-										
+									__ZINDEX: (1000 + svc.toggleOrder.indexOf(_layer.id)),        // <---Custom property added to arcgislink.js module by JKIRKLAND 10/2016									
+									__doOnDrawStart: function(){                                  // <---Custom property added to arcgislink.js module by JKIRKLAND 10/2016										
 										$timeout(function(){
 											_layer.isloading = true;
 										},1)
-									},
-									
-									__doOnDrawEnd: function(){                                    // <---Custom property added to arcgislink.js module by JKIRKLAND 10/2016
-										
+									},									
+									__doOnDrawEnd: function(){                                    // <---Custom property added to arcgislink.js module by JKIRKLAND 10/2016										
 										$timeout(function(){
 											_layer.isloading = false;
 										},1)
@@ -154,6 +148,61 @@ var app = angular.module('app',[]);
 							}
 							svc_map.map.setMapTypeId(_layer.id);
 							_layer.isloading = false;
+						} //end if filtype==tilecahce
+
+						if (_layer.filetype.toLowerCase() == "wms"){
+
+							_layer.mapService = new gmaps.ags.MapService(_layer.url);
+
+							//Remove trailing slash
+							var _cleanUrl_1 = (_layer.url.substr(_layer.url.length-1) == "/" ? _layer.url.substr(0,_layer.url.length-1) : _layer.url);
+
+							//WMS URL
+							var _wmsUrl = _cleanUrl_1.replace("/rest","") + "/WMSServer?&REQUEST=GetMap&SERVICE=WMS&VERSION=1.3";
+
+							//Layer info url
+							var _layerInfoUrl = _cleanUrl_1 + "/?f=pjson";
+
+							$http.jsonp(_layerInfoUrl + "&callback=JSON_CALLBACK")
+							.success(function(_data){
+								var _layerCount = _data.layers.length;
+								var _layerIdList = []; 
+								var _styleList = []; 
+								for (var i = 0; i < _layerCount; i++){
+									_layerIdList.push(i);
+									_styleList.push("default");
+								}
+
+								var wmsOptions = {
+									alt: "Test",
+									getTileUrl: function (tile, zoom) {
+										var projection = svc_map.map.getProjection();
+										var zpow = Math.pow(2, zoom);
+										var ul = new google.maps.Point(tile.x * 256.0 / zpow, (tile.y + 1) * 256.0 / zpow);
+										var lr = new google.maps.Point((tile.x + 1) * 256.0 / zpow, (tile.y) * 256.0 / zpow);
+										var ulw = projection.fromPointToLatLng(ul);
+										var lrw = projection.fromPointToLatLng(lr);
+										var format = "image/png"; //type of image returned  or image/jpeg
+										var layers = _layerIdList.join(","); 
+										var styles = _styleList.join(",");
+										var srs = "EPSG:4326"; //projection to display. This is the projection of google map. Don't change unless you know what you are doing.
+										var bbox = ulw.lat() + "," + ulw.lng() + "," + lrw.lat() + "," + lrw.lng();
+										//Add the components of the URL together
+										var url = _wmsUrl + "&LAYERS=" + layers + "&Styles=" + styles + "&SRS=" + srs + "&BBOX=" + bbox + "&width=256" + "&height=256" + "&format=" + format + "&BGCOLOR=0xFFFFFF&TRANSPARENT=true" + "&reaspect=false" + "&CRS=EPSG:4326";
+										return url;
+									},
+									isPng: false,
+									maxZoom: 17,
+									minZoom: 1,
+									name: "Test",
+									tileSize: new google.maps.Size(256, 256)									
+								};
+						
+								//Creating the object to create the ImageMapType that will call the WMS Layer Options.	
+								_layer.wmsMap = new google.maps.ImageMapType(wmsOptions);						
+								svc_map.map.overlayMapTypes.insertAt(0,_layer.wmsMap);
+								_layer.isloading = false;
+							});
 						}
 					
 					//Layer is already active. Turn it off
@@ -168,6 +217,9 @@ var app = angular.module('app',[]);
 							}
 							if ( _layer.filetype.toLowerCase() == "tilecache"){		
 								svc_map.map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+							}
+							if ( _layer.filetype.toLowerCase() == "wms"){	
+								svc_map.map.overlayMapTypes.removeAt(0);
 							}
 							
 						//Cancel any $intervals
@@ -286,7 +338,7 @@ var app = angular.module('app',[]);
 				var _activeLayers = svc_layers.layers.filter(function(e){
 					var _active = e.active || false;
 					var _hide = e.infowindowhide || 'false';
-					return _active == true && _hide != true && _hide.toLowerCase() != "true" && e.filetype.toLowerCase()=="mapservice";
+					return _active == true && _hide != true && _hide.toLowerCase() != "true" && (e.filetype.toLowerCase()=="mapservice" || e.filetype.toLowerCase()=="wms");
 				});	
 				
 				
