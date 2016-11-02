@@ -367,7 +367,8 @@ var app = angular.module('app',[]);
 								};
 						
 								//Creating the object to create the ImageMapType that will call the WMS Layer Options.	
-								_layer.wmsMap = new google.maps.ImageMapType(wmsOptions);						
+								_layer.wmsMap = new google.maps.ImageMapType(wmsOptions);	
+								_layer.wmsMap.setOpacity(parseFloat(_layer.opacity));				
 								svc_map.map.overlayMapTypes.insertAt(0,_layer.wmsMap);
 								_layer.isloading = false;
 							});
